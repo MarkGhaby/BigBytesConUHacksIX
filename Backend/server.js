@@ -11,11 +11,38 @@ const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
+// ✅ Add express-session with a secret key
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET, // Use the secret from .env
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ✅ Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+
 // ✅ Import Routes
-const openaiRoutes = require("./routes/openai");
+const authRoutes = require("./routes/auth");
+const moodRoutes = require("./routes/openai"); // Import mood analysis route
+
+app.use("/api/auth", authRoutes);
+app.use("/api/openai", moodRoutes); // Mount mood analysis route
+
+// ✅ Import Routes
 const spotifyRoutes = require("./routes/spotifyAuth"); // Add Spotify API routes
 
-app.use("/api", openaiRoutes);
 app.use("/spotify", spotifyRoutes); // Add Spotify routes
 
 // ✅ Default Route
