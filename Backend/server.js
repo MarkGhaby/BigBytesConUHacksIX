@@ -1,11 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
+const mongoose = require("mongoose");
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ✅ Middleware
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
 // ✅ Import Routes
@@ -15,7 +18,7 @@ const spotifyRoutes = require("./routes/spotifyAuth"); // Add Spotify API routes
 app.use("/api", openaiRoutes);
 app.use("/spotify", spotifyRoutes); // Add Spotify routes
 
-// Default Route
+// ✅ Default Route
 app.get("/", (req, res) => {
   res.send("📝 Journalify Backend is Running 🚀");
 });
