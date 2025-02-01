@@ -23,6 +23,7 @@ const props = defineProps({
 const spotifyTrackId = ref(null)
 
 const getSongFromMessages = async () => {
+  const query = `Based on the following diary entries, suggest a song name and artist. If the user explicitly mentions a song they want to hear, return that. Give me the answer in this format: artist - track \n\n ${props.messages.join('\n')}`
   try {
     const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -35,7 +36,7 @@ const getSongFromMessages = async () => {
         messages: [
           {
             role: 'user',
-            content: `Based on the following diary entries, suggest a song name and artist. If the user explicitly mentions a song they want to hear, return that. Give me the answer in this format: artist - track \n\n ${props.messages.join('\n')}`,
+            content: query,
           },
         ],
         temperature: 0.7,
@@ -46,7 +47,7 @@ const getSongFromMessages = async () => {
     const songSuggestion = openAiData.choices[0].message.content
 
     const spotifyResponse = await fetch(
-      `http://localhost:5000/spotify/search?query=${encodeURIComponent(songSuggestion)}`,
+      `http://localhost:3000/spotify/search?query=${encodeURIComponent(songSuggestion)}`,
     )
     const spotifyData = await spotifyResponse.json()
     spotifyTrackId.value = spotifyData.trackId
