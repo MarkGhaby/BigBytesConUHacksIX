@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const openai = require('../config//configai'); // ✅ Import OpenAI instance
+const openai = require('../config/configai'); // ✅ Import OpenAI instance
 
 // ✅ Route to analyze mood from journal entries
 router.post('/analyze-mood', async (req, res) => {
@@ -8,23 +8,26 @@ router.post('/analyze-mood', async (req, res) => {
         const { text } = req.body;
 
         if (!text) {
-            return res.status(400).json({ error: "No journal entry provided" });
+            return res.status(400).send("No journal entry provided");
         }
 
-        // OpenAI API call
+        // OpenAI API call with an improved prompt
         const response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [
-                { role: "system", content: "You are an AI that detects emotions from journal entries." },
-                { role: "user", content: `Analyze this journal entry and determine the user's mood in one word (Happy, Sad, Stressed, Excited, etc.): "${text}"` }
+                { role: "system", content: "You are an AI that recommends a popular song based on the provided journal entry." },
+                { role: "user", content: `Given the following journal entry, return only the name of a popular song and its artist. Do not ask any questions or provide explanations. Just return the song title and artist. 
+                
+                Journal entry: "${text}"` }
             ]
         });
 
-        const mood = response.choices[0]?.message?.content?.trim() || "Neutral";
-        res.json({ mood });
+        let responseText = response.choices[0]?.message?.content?.trim();
+
+        res.send(responseText); // ✅ Returns only the song title and artist
     } catch (error) {
         console.error("Error analyzing mood:", error);
-        res.status(500).json({ error: "Error processing request" });
+        res.status(500).send("Error processing request");
     }
 });
 
