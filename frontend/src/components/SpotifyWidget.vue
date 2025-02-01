@@ -8,8 +8,7 @@
       frameborder="0"
       allowtransparency="true"
       allow="encrypted-media"
-    >
-    </iframe>
+    ></iframe>
   </div>
 </template>
 
@@ -23,32 +22,21 @@ const props = defineProps({
 const spotifyTrackId = ref(null)
 
 const getSongFromMessages = async () => {
-  const query = `Based on the following diary entries, suggest a song name and artist. If the user explicitly mentions a song they want to hear, return that. Give me the answer in this format: artist - track \n\n ${props.messages.join('\n')}`
   try {
-    const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // 🔹 Send the messages to the backend
+    const response = await fetch('http://localhost:3000/api/openai/analyze-mood', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer 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`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4',
-        messages: [
-          {
-            role: 'user',
-            content: query,
-          },
-        ],
-        temperature: 0.7,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: props.messages }),
     })
 
-    const openAiData = await openAiResponse.json()
-    const songSuggestion = openAiData.choices[0].message.content
+    const songSuggestion = await response.text() // Expecting "Artist - Track"
 
+    // 🔹 Send the suggested song to Spotify Search
     const spotifyResponse = await fetch(
       `http://localhost:3000/spotify/search?query=${encodeURIComponent(songSuggestion)}`,
     )
+
     const spotifyData = await spotifyResponse.json()
     spotifyTrackId.value = spotifyData.trackId
   } catch (error) {
