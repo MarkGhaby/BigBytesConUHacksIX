@@ -32,10 +32,10 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // ✅ Import Routes
 const authRoutes = require('./routes/auth');
-const moodRoutes = require('./routes/mood'); // Import mood analysis route
+const moodRoutes = require('./routes/openai'); // Import mood analysis route
 
 app.use('/api/auth', authRoutes);
-app.use('/api/mood', moodRoutes); // Mount mood analysis route
+app.use('/api/openai', moodRoutes); // Mount mood analysis route
 
 // ✅ Default Route
 app.get('/', (req, res) => {
