@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
@@ -8,7 +8,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Default Route (for testing)
+// ✅ Import OpenAI Routes
+const openaiRoutes = require('./routes/openai');
+app.use('/api', openaiRoutes);
+
+// Default Route
 app.get('/', (req, res) => {
     res.send('📝 Journalify Backend is Running 🚀');
 });
