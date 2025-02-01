@@ -1,7 +1,7 @@
 <template>
   <q-page class="font-sans flex flex-col">
-    <div 
-      ref="messagesContainer" 
+    <div
+      ref="messagesContainer"
       class="max-w-screen-md w-full mx-auto flex-1 overflow-auto mb-4 p-2"
     >
       <div 
@@ -12,13 +12,13 @@
         <div 
           class="inline-block bg-stone-300 text-black rounded-lg p-2 w-4/5 break-words whitespace-pre-wrap"
         >
+
           {{ msg }}
         </div>
       </div>
     </div>
 
     <div class="sticky bottom-0 w-full bg-stone-200 px-10 pb-6 flex items-center gap-4">
-  <!-- Text Input -->
   <q-input
     rounded
     standout
@@ -33,16 +33,17 @@
     class="flex-1"
   />
 
-  <!-- Send Button -->
   <q-btn
-  rounded
-  text-color="white"
-  class="shrink-0 p-4"
-  style="background-color: #1DB954"
-  @click="sendMessage"
->
-  <q-icon name="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" size="24px" />
+    rounded
+    text-color="white"
+    class="shrink-0 bottom-3 p-4 "
+    style="background-color: #1DB954"
+    @click="findSong"
+  >
+    <q-icon name="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" size="24px" />
 </q-btn>
+
+<SpotifyWidget :messages="messages" ref="spotifyWidget" />
 
 </div>
 
@@ -51,21 +52,30 @@
 
 <script setup>
 import { ref, nextTick } from 'vue'
+import SpotifyWidget from 'src/components/SpotifyWidget.vue'
 
 const messages = ref([])
-const newMessage = ref("")
+const newMessage = ref('')
 const messagesContainer = ref(null)
+const spotifyWidget = ref(null)
 
 const sendMessage = () => {
   const trimmed = newMessage.value.trim()
-  if (trimmed !== "") {
+  if (trimmed !== '') {
     messages.value.push(trimmed)
-    newMessage.value = ""
+    newMessage.value = ''
+
     nextTick(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
       }
     })
+  }
+}
+
+const findSong = () => {
+  if (spotifyWidget.value) {
+    spotifyWidget.value.getSongFromMessages()
   }
 }
 </script>
