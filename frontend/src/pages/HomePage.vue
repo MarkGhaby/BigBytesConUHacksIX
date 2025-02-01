@@ -16,6 +16,7 @@
           {{ msg }}
         </div>
       </div>
+      <SpotifyWidget :messages="messages" ref="spotifyWidget" />
     </div>
 
     <div class="sticky bottom-0 w-full bg-stone-200 px-10 pb-6 flex items-center gap-4">
@@ -42,8 +43,6 @@
   >
     <q-icon name="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" size="24px" />
 </q-btn>
-
-<SpotifyWidget :messages="messages" ref="spotifyWidget" />
 
 </div>
 
