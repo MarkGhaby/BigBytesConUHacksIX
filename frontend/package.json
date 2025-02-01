@@ -15,6 +15,7 @@
     "postinstall": "quasar prepare"
   },
   "dependencies": {
+    "@fontsource/montserrat": "^5.1.1",
     "@quasar/extras": "^1.16.4",
     "pinia": "^2.3.1",
     "quasar": "^2.16.0",

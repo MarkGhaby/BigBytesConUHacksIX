@@ -1,7 +1,53 @@
 <template>
-    <div>
-        <h1>Home Page</h1>
-        <p>Welcome to our website</p>
+  <q-page class="font-sans flex flex-col">
+    <div 
+      ref="messagesContainer" 
+      class="max-w-screen-md w-full mx-auto flex-1 overflow-auto mb-4 p-2"
+    >
+      <div 
+        v-for="(msg, index) in messages" 
+        :key="index" 
+        class="mb-2 flex justify-center"
+      >
+        <div class="inline-block bg-stone-300 text-black rounded-lg p-2">
+          {{ msg }}
+        </div>
+      </div>
     </div>
+
+    <q-input
+      rounded
+      standout
+      clearable
+      counter
+      outlined
+      color="black"
+      bg-color="grey-4"
+      v-model="newMessage"
+      placeholder="Type to Journalify..."
+      @keyup.enter="sendMessage"
+      class="sticky bottom-0 w-full bg-stone-200 px-10 pb-10"
+    />
+  </q-page>
 </template>
-<script> </script>
+
+<script setup>
+import { ref, nextTick } from 'vue'
+
+const messages = ref([])
+const newMessage = ref("")
+const messagesContainer = ref(null)
+
+const sendMessage = () => {
+  const trimmed = newMessage.value.trim()
+  if (trimmed !== "") {
+    messages.value.push(trimmed)
+    newMessage.value = ""
+    nextTick(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    })
+  }
+}
+</script>
