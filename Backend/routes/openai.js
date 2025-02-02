@@ -1,34 +1,39 @@
-const express = require('express');
+const express = require("express");
+const passport = require("passport");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
-const openai = require('../config/configai'); // ✅ Import OpenAI instance
 
-// ✅ Route to analyze mood from journal entries
-router.post('/analyze-mood', async (req, res) => {
-    try {
-        const { text } = req.body;
+require("../config/spotifyAuth"); // Load Spotify OAuth config
 
-        if (!text) {
-            return res.status(400).send("No journal entry provided");
-        }
+// ✅ Redirect to Spotify for Authentication
+router.get("/spotify", (req, res) => {
+    console.log("✅ /spotify route was accessed!");
 
-        // OpenAI API call with an improved prompt
-        const response = await openai.chat.completions.create({
-            model: "gpt-4",
-            messages: [
-                { role: "system", content: "You are an AI that recommends a popular song based on the provided journal entry." },
-                { role: "user", content: `Given the following journal entry, return only the name of a popular song and its artist. Do not ask any questions or provide explanations. Just return the song title and artist. 
-                
-                Journal entry: "${text}"` }
-            ]
-        });
+    const redirectUri = encodeURIComponent(process.env.SPOTIFY_REDIRECT_URI);
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=user-read-email%20user-read-private`;
 
-        let responseText = response.choices[0]?.message?.content?.trim();
+    console.log("🔄 Redirecting to Spotify:", authUrl);
+    res.redirect(authUrl);
+});
 
-        res.send(responseText); // ✅ Returns only the song title and artist
-    } catch (error) {
-        console.error("Error analyzing mood:", error);
-        res.status(500).send("Error processing request");
-    }
+// ✅ Spotify OAuth Callback
+router.get("/callback", passport.authenticate("spotify", { failureRedirect: "/" }), (req, res) => {
+    const token = jwt.sign(
+        { id: req.user.id, spotifyId: req.user.spotifyId },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+    );
+
+    console.log("✅ User logged in successfully!");
+
+    // ✅ Redirect back to frontend and store token
+    res.redirect(`http://localhost:9000?token=${token}`);
+});
+
+// ✅ Logout Route
+router.get("/logout", (req, res) => {
+    req.logout();
+    res.json({ message: "Logged out successfully" });
 });
 
 module.exports = router;
