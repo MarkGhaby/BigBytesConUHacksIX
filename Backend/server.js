@@ -11,13 +11,13 @@ const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
-// ✅ Add express-session with a secret key
+// ✅ Session Setup
 app.use(
   session({
-    secret: process.env.SESSION_SECRET, // Use the secret from .env
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: { secure: false },
   })
 );
 
@@ -35,23 +35,23 @@ mongoose
 
 // ✅ Import Routes
 const authRoutes = require("./routes/auth");
-const moodRoutes = require("./routes/openai"); // Import mood analysis route
+const moodRoutes = require("./routes/openai");
+const spotifyAuthRoutes = require("./routes/spotifyAuth");
+const spotifyApiRoutes = require("./routes/spotify");
 
+// ✅ Mount Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/openai", moodRoutes); // Mount mood analysis route
-
-// ✅ Import Routes
-const spotifyRoutes = require("./routes/spotifyAuth"); // Add Spotify API routes
-
-app.use("/spotify", spotifyRoutes); // Add Spotify routes
+app.use("/api/openai", moodRoutes);
+app.use("/api/spotify", spotifyAuthRoutes);
+app.use("/api/spotify/songs", spotifyApiRoutes);
 
 // ✅ Default Route
 app.get("/", (req, res) => {
   res.send("📝 Journalify Backend is Running 🚀");
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000; // Change from 6000 to 5000
+// ✅ Start Server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Journalify Backend running on port ${PORT}`)
 );

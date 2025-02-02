@@ -19,11 +19,16 @@ passport.use(
                         displayName: profile.displayName,
                         email: profile.emails ? profile.emails[0].value : null,
                         profileImage: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
+                        accessToken,  // Add this
+                        refreshToken  // Add this
                     });
-
-                    await user.save();
+                } else {
+                    // Update tokens for existing user
+                    user.accessToken = accessToken;
+                    user.refreshToken = refreshToken;
                 }
 
+                await user.save();
                 return done(null, user);
             } catch (err) {
                 return done(err, null);
