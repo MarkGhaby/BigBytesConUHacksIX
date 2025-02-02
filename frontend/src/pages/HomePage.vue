@@ -1,10 +1,14 @@
 <template>
-  <q-page class="font-sans flex flex-col">
+  <q-page class="font-sans flex flex-col min-h-screen">
     <div
       ref="messagesContainer"
       class="max-w-screen-md w-full mx-auto flex-1 overflow-auto mb-4 p-2"
     >
-      <div v-for="(msg, index) in messages" :key="index" class="mb-2 flex justify-center">
+      <div
+        v-for="(msg, index) in activeChat.messages"
+        :key="index"
+        class="mb-2 flex justify-center"
+      >
         <div
           class="inline-block bg-stone-300 text-black rounded-lg p-2 w-4/5 break-words whitespace-pre-wrap"
         >
@@ -43,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, computed } from 'vue'
 import SpotifyWidget from 'src/components/SpotifyWidget.vue'
 import { useJournalStore } from 'src/stores/journal'
 import { Notify } from 'quasar'
@@ -52,12 +56,13 @@ const journalStore = useJournalStore()
 const newMessage = ref('')
 const isLoading = ref(false)
 
+const activeChat = computed(() => journalStore.activeChat())
+
 function sendMessage() {
   const trimmed = newMessage.value.trim()
   if (trimmed !== '') {
     journalStore.sendMessage(trimmed)
     newMessage.value = ''
-
     nextTick(() => {
       window.scrollTo({
         top: document.body.scrollHeight,
