@@ -16,11 +16,7 @@
         </div>
       </div>
 
-      <SpotifyWidget
-        :track-id="activeChat.trackId"
-        class="flex justify-center"
-        @song-loaded="onSongLoaded"
-      />
+      <SpotifyWidget class="flex justify-center" @song-loaded="onSongLoaded" />
     </div>
 
     <div class="sticky bottom-0 w-full bg-stone-200 px-10 pb-6 flex items-center gap-4">
@@ -41,7 +37,7 @@
         rounded
         text-color="white"
         class="shrink-0 bottom-3 p-4"
-        style="background-color: #1DB954"
+        style="background-color: #1db954"
         icon="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
         @click="findSong"
         :loading="isLoading"
@@ -70,7 +66,7 @@ function sendMessage() {
     nextTick(() => {
       window.scrollTo({
         top: document.body.scrollHeight,
-        behavior: 'smooth'
+        behavior: 'smooth',
       })
     })
   }
@@ -85,7 +81,7 @@ async function findSong() {
     Notify.create({
       message: 'Failed to fetch song. Please try again.',
       color: 'negative',
-      position: 'top'
+      position: 'top',
     })
   }
 }

@@ -1,35 +1,39 @@
 <template>
   <div class="flex justify-center">
-    <iframe
-      v-if="trackId"
-      :src="spotifyEmbedUrl"
-      width="300"
-      height="380"
-      frameborder="0"
-      allowtransparency="true"
-      allow="encrypted-media"
-      class="rounded-lg w-4/5 break-words whitespace-pre-wrap"
-      @load="handleIframeLoad"
-    ></iframe>
+    <q-carousel animated v-model="slide" arrows navigation infinite>
+      <q-carousel-slide
+        v-for="(trackId, index) in journal.activeChat().trackId"
+        :key="index"
+        :name="index"
+        class="bg-transparent"
+      >
+        <iframe
+          v-if="trackId"
+          :src="`https://open.spotify.com/embed/track/${trackId}`"
+          width="300"
+          height="380"
+          frameborder="0"
+          allowtransparency="true"
+          allow="encrypted-media"
+          class="rounded-lg"
+          @load="handleIframeLoad"
+        ></iframe>
+      </q-carousel-slide>
+    </q-carousel>
   </div>
 </template>
 
 <script setup>
-import { computed, defineEmits, defineProps } from 'vue'
+import { ref, defineEmits } from 'vue'
+import { useJournalStore } from 'src/stores/journal'
+
+const journal = useJournalStore()
+
+console.log(journal.activeChat().trackId)
+
+const slide = ref(1)
 
 const emit = defineEmits(['song-loaded'])
-const props = defineProps({
-  trackId: {
-    type: String,
-    default: null
-  }
-})
-
-const spotifyEmbedUrl = computed(() => {
-  return props.trackId
-    ? `https://open.spotify.com/embed/track/${props.trackId}`
-    : ''
-})
 
 function handleIframeLoad() {
   emit('song-loaded')
