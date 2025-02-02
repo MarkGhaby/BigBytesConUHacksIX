@@ -37,7 +37,7 @@ const getSpotifyAccessToken = async () => {
 // **Route to search for a song**
 router.get("/search", async (req, res) => {
   try {
-    const { query, liked, count } = req.query;
+    const { query } = req.query;
     if (!query) {
       return res.status(400).json({ error: "Missing query parameter" });
     }

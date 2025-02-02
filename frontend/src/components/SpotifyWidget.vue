@@ -31,7 +31,7 @@ const journal = useJournalStore()
 
 console.log(journal.activeChat().trackId)
 
-const slide = ref(1)
+const slide = ref(0)
 
 const emit = defineEmits(['song-loaded'])
 

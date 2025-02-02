@@ -58,17 +58,18 @@ export const useJournalStore = defineStore('journalStore', () => {
     try {
       const liked = localStorage.getItem('suggest_liked_songs')
       const count = localStorage.getItem('preferred_song_count')
+      const authToken = localStorage.getItem('spotify_token')
 
       const response = await fetch('http://localhost:3000/api/openai/analyze-mood', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
         body: JSON.stringify({ messages: chat.messages, liked, count }),
       })
       const songSuggestion = (await response.text()).split('~')
 
       songSuggestion.forEach(async (song) => {
         const spotifyResponse = await fetch(
-          `http://localhost:3000/spotify/search?query=${encodeURIComponent(song)}`,
+          `http://localhost:3000/api/spotify/search?query=${encodeURIComponent(song)}`,
         )
         const spotifyData = await spotifyResponse.json()
 
