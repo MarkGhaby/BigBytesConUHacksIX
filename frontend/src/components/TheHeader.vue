@@ -18,14 +18,34 @@
             {{ isLoggedIn ? `Welcome, ${spotifyUsername}` : "Welcome" }}
           </p>
 
-          <!-- Suggestion Toggle (Only shown when logged in) -->
-          <div v-if="isLoggedIn" class="mt-3 flex items-center justify-between">
-            <span class="text-sm text-gray-700">Suggest Liked Songs</span>
-            <q-toggle
-              v-model="suggestLikedSongs"
-              color="green"
-              @update:model-value="handleToggleChange"
-            />
+      
+
+          <!-- Settings Section (Only shown when logged in) -->
+          <div v-if="isLoggedIn" class="mt-3 space-y-3 border-t pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">Suggest Liked Songs</span>
+              <q-toggle
+                v-model="suggestLikedSongs"
+                color="green"
+                @update:model-value="handleToggleChange"
+              />
+            </div>
+
+            <!-- Number of Songs Selector -->
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">Number of Songs</span>
+              <q-input
+                v-model.number="songCount"
+                type="number"
+                dense
+                outlined
+                class="w-20"
+                :min="1"
+                :max="10"
+                @update:model-value="handleSongCountChange"
+                style="--q-primary: #1DB954"
+              />
+            </div>
           </div>
 
           <!-- Show Sign In if Not Logged In -->
@@ -56,11 +76,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-const emit = defineEmits(["toggle-drawer", "suggest-songs-toggle"]);
+const emit = defineEmits(["toggle-drawer", "suggest-songs-toggle", "song-count-change"]);
 const showDropdown = ref(false);
 const isLoggedIn = ref(false);
 const spotifyUsername = ref("");
 const suggestLikedSongs = ref(false);
+const songCount = ref(3); // Default to 3 songs
 
 // ✅ Toggle dropdown visibility
 const toggleDrawer = () => {
@@ -156,6 +177,19 @@ const handleToggleChange = async (value) => {
   }
 };
 
+// Handle song count change
+const handleSongCountChange = (value) => {
+  try {
+    // Ensure value is within bounds
+    const count = Math.min(Math.max(parseInt(value) || 1, 1), 10);
+    songCount.value = count;
+    localStorage.setItem('preferred_song_count', count.toString());
+    emit('song-count-change', count);
+  } catch (error) {
+    console.error('Failed to save song count preference:', error);
+  }
+};
+
 onMounted(() => {
   // Check for token in URL parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -172,5 +206,11 @@ onMounted(() => {
   // Load toggle preference
   const savedPreference = localStorage.getItem('suggest_liked_songs');
   suggestLikedSongs.value = savedPreference === 'true';
+
+  // Load song count preference
+  const savedSongCount = localStorage.getItem('preferred_song_count');
+  if (savedSongCount) {
+    songCount.value = parseInt(savedSongCount);
+  }
 });
 </script>
