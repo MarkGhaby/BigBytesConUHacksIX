@@ -40,6 +40,7 @@
         icon="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
         @click="findSong"
         :loading="isLoading"
+        :disable="isDisabled"
       />
     </div>
   </q-page>
@@ -55,6 +56,7 @@ import { Notify } from 'quasar'
 const journalStore = useJournalStore()
 const newMessage = ref('')
 const isLoading = ref(false)
+const isDisabled = ref(false)
 
 const activeChat = computed(() => journalStore.activeChat())
 
@@ -88,5 +90,6 @@ async function findSong() {
 
 function onSongLoaded() {
   isLoading.value = false
+  isDisabled.value = true
 }
 </script>
