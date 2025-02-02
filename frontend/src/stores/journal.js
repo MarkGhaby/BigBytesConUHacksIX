@@ -11,7 +11,7 @@ export const useJournalStore = defineStore('journalStore', () => {
       label: 'New Entry',
       timestamp: new Date().toLocaleDateString('en-US'),
       messages: [],
-      trackId: null
+      trackId: [],
     }
     conversations.value.unshift(newChat)
     activeChatId.value = newChat.id
@@ -19,17 +19,17 @@ export const useJournalStore = defineStore('journalStore', () => {
 
   function activeChat() {
     return (
-      conversations.value.find(chat => chat.id === activeChatId.value) || {
+      conversations.value.find((chat) => chat.id === activeChatId.value) || {
         messages: [],
         label: '',
         timestamp: '',
-        trackId: null
+        trackId: [],
       }
     )
   }
 
   function loadChat(chatId) {
-    if (conversations.value.some(chat => chat.id === chatId)) {
+    if (conversations.value.some((chat) => chat.id === chatId)) {
       activeChatId.value = chatId
     }
   }
@@ -50,35 +50,38 @@ export const useJournalStore = defineStore('journalStore', () => {
   async function findSongForActiveChat(forceUpdate = false) {
     const chat = activeChat()
     if (!chat) return
-  
-    if (!forceUpdate && chat.trackId) {
+
+    if (!forceUpdate && chat.trackId.length !== 0) {
       return
     }
-  
+
     try {
+      const liked = localStorage.getItem('suggest_liked_songs')
+      const count = localStorage.getItem('preferred_song_count')
+
       const response = await fetch('http://localhost:3000/api/openai/analyze-mood', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chat.messages }),
+        body: JSON.stringify({ messages: chat.messages, liked, count }),
       })
-      const songSuggestion = await response.text()
-  
-      const spotifyResponse = await fetch(
-        `http://localhost:3000/spotify/search?query=${encodeURIComponent(songSuggestion)}`
-      )
-      const spotifyData = await spotifyResponse.json()
-  
-      chat.trackId = spotifyData.trackId
+      const songSuggestion = (await response.text()).split('~')
+
+      songSuggestion.forEach(async (song) => {
+        const spotifyResponse = await fetch(
+          `http://localhost:3000/spotify/search?query=${encodeURIComponent(song)}`,
+        )
+        const spotifyData = await spotifyResponse.json()
+
+        chat.trackId.push(spotifyData.trackId)
+      })
     } catch (err) {
       console.error('Error fetching song:', err)
       throw err
     }
   }
-  
 
   function saveEntry(messages, song) {
     console.log('Saving entry:\n', { messages, song })
-
   }
 
   return {
@@ -89,6 +92,6 @@ export const useJournalStore = defineStore('journalStore', () => {
     loadChat,
     sendMessage,
     findSongForActiveChat,
-    saveEntry
+    saveEntry,
   }
 })
