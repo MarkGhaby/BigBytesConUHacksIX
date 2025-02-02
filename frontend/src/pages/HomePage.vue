@@ -15,8 +15,7 @@
           {{ msg }}
         </div>
       </div>
-
-      <SpotifyWidget class="flex justify-center" @song-loaded="onSongLoaded" />
+        <SpotifyWidget @song-loaded="onSongLoaded" />
     </div>
 
     <div class="sticky bottom-0 w-full bg-stone-200 px-10 pb-6 flex items-center gap-4">
@@ -45,6 +44,7 @@
     </div>
   </q-page>
 </template>
+
 
 <script setup>
 import { ref, nextTick, computed } from 'vue'

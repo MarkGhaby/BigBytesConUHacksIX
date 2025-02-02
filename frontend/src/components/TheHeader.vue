@@ -5,11 +5,9 @@
       <q-toolbar-title>{{ headerMessage }}</q-toolbar-title>
       <q-space />
 
-      <!-- Profile Button with Dropdown -->
       <div class="relative">
         <q-btn flat round dense icon="account_circle" @click="toggleDropdown" />
 
-        <!-- Dropdown Menu -->
         <div
           v-if="showDropdown"
           class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 border border-gray-300"
@@ -29,7 +27,6 @@
               />
             </div>
 
-            <!-- Number of Songs Selector -->
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-700">Number of Songs</span>
               <q-input
@@ -46,7 +43,6 @@
             </div>
           </div>
 
-          <!-- Show Sign In if Not Logged In -->
           <q-btn
             v-if="!isLoggedIn"
             outline
@@ -56,7 +52,6 @@
             @click="signInWithSpotify"
           />
 
-          <!-- Show Logout if Logged In -->
           <q-btn
             v-if="isLoggedIn"
             flat
@@ -79,13 +74,11 @@ const showDropdown = ref(false)
 const isLoggedIn = ref(false)
 const spotifyUsername = ref('')
 const suggestLikedSongs = ref(false)
-const songCount = ref(3) // Default to 3 songs
+const songCount = ref(3)
 
-// ✅ Provide these values so other components can access them
 provide('suggestLikedSongs', suggestLikedSongs)
 provide('songCount', songCount)
 
-// ✅ Restore Alternating Header Messages
 const messages = [
   'How are you feeling today?',
   "It's okay to express yourself.",
@@ -96,12 +89,10 @@ const messages = [
 
 const headerMessage = ref('')
 
-// ✅ Randomly Pick a Header Message on Load
 const setRandomHeaderMessage = () => {
   headerMessage.value = messages[Math.floor(Math.random() * messages.length)]
 }
 
-// ✅ Toggle dropdown visibility
 const toggleDrawer = () => {
   emit('toggle-drawer')
 }
