@@ -56,7 +56,8 @@ import { Notify } from 'quasar'
 const journalStore = useJournalStore()
 const newMessage = ref('')
 const isLoading = ref(false)
-const isDisabled = ref(false)
+
+const isDisabled = computed(() => journalStore.isDisabled)
 
 const activeChat = computed(() => journalStore.activeChat())
 
@@ -90,6 +91,5 @@ async function findSong() {
 
 function onSongLoaded() {
   isLoading.value = false
-  isDisabled.value = true
 }
 </script>

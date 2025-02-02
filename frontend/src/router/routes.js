@@ -3,12 +3,10 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/HomePage.vue') },  // ✅ Home Page
-      { path: 'settings', component: () => import('pages/SettingsPage.vue') } // ✅ Settings Page
+      { path: '', component: () => import('pages/HomePage.vue') }, 
     ]
   },
 
-  // Always leave this as the last one
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue')

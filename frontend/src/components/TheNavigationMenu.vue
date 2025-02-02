@@ -46,6 +46,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 
+/* did this to properly bind the prop while maintaing immutability */
 const drawerModel = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val)

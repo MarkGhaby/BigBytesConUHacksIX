@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export const useJournalStore = defineStore('journalStore', () => {
   const conversations = ref([])
   const activeChatId = ref(null)
+  const isDisabled = ref(false)
 
   function createNewChat() {
     const newChat = {
@@ -15,6 +16,7 @@ export const useJournalStore = defineStore('journalStore', () => {
     }
     conversations.value.unshift(newChat)
     activeChatId.value = newChat.id
+    isDisabled.value = false
   }
 
   function activeChat() {
@@ -74,6 +76,7 @@ export const useJournalStore = defineStore('journalStore', () => {
         const spotifyData = await spotifyResponse.json()
 
         chat.trackId.push(spotifyData.trackId)
+        isDisabled.value = true
       })
     } catch (err) {
       console.error('Error fetching song:', err)
@@ -88,6 +91,7 @@ export const useJournalStore = defineStore('journalStore', () => {
   return {
     conversations,
     activeChatId,
+    isDisabled,
     createNewChat,
     activeChat,
     loadChat,

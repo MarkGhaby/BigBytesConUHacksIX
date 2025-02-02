@@ -1,13 +1,23 @@
 <template>
   <q-header reveal>
-    <q-toolbar class="font-sans bg-stone-200 text-black">
-      <q-btn flat round dense icon="menu" @click="toggleDrawer" />
+    <q-toolbar shrink class="font-sans bg-stone-200 text-black ">
+      <q-btn flat round icon="menu" @click="toggleDrawer" />
       <q-toolbar-title>{{ headerMessage }}</q-toolbar-title>
       <q-space />
 
-      <div class="relative">
-        <q-btn flat round dense icon="account_circle" @click="toggleDropdown" />
+      <div class="relative flex items-center">
+        <q-btn v-if="!isLoggedIn" flat round icon="account_circle" @click="toggleDropdown" />
 
+        <div 
+          v-if="isLoggedIn" 
+          class="w-8 h-8 flex items-center justify-center bg-olive-600 text-white rounded-full font-bold text-lg cursor-pointer"
+          @click="toggleDropdown"
+        >
+          {{ spotifyInitials }}
+        </div>
+      </div>
+
+    <div>
         <div
           v-if="showDropdown"
           class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 border border-gray-300"
@@ -67,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, provide } from 'vue'
+import { ref, computed, onMounted, provide } from 'vue'
 
 const emit = defineEmits(['toggle-drawer'])
 const showDropdown = ref(false)
@@ -75,6 +85,12 @@ const isLoggedIn = ref(false)
 const spotifyUsername = ref('')
 const suggestLikedSongs = ref(false)
 const songCount = ref(3)
+
+const spotifyInitials = computed(() => {
+  if (!spotifyUsername.value) return ''
+  const names = spotifyUsername.value.split(' ')
+  return names.map(name => name[0]).slice(0, 2).join('').toUpperCase()
+})
 
 provide('suggestLikedSongs', suggestLikedSongs)
 provide('songCount', songCount)
@@ -101,7 +117,6 @@ const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
 }
 
-// ✅ Check if User is Logged In and Get Username
 const checkLoginStatus = () => {
   const token = localStorage.getItem('spotify_token')
 
@@ -130,14 +145,12 @@ const checkLoginStatus = () => {
   }
 }
 
-// ✅ Redirect User to Spotify Login
 const signInWithSpotify = () => {
-  localStorage.removeItem('spotify_token') // ✅ Force fresh login
+  localStorage.removeItem('spotify_token')
   sessionStorage.clear()
   window.location.href = 'http://localhost:3000/api/auth/spotify'
 }
 
-// ✅ Logout Function
 const logout = async () => {
   try {
     const response = await fetch('http://localhost:3000/api/auth/logout', {
@@ -148,14 +161,12 @@ const logout = async () => {
     if (response.ok) {
       const data = await response.json()
 
-      // Clear all local storage and state
       localStorage.clear()
       sessionStorage.clear()
       isLoggedIn.value = false
       spotifyUsername.value = ''
       showDropdown.value = false
 
-      // Logout from Spotify
       const spotifyLogoutWindow = window.open(
         data.spotifyLogoutUrl,
         'Spotify Logout',
@@ -175,27 +186,21 @@ const logout = async () => {
   }
 }
 
-// ✅ Handle Suggest Liked Songs Toggle Change
 const handleToggleChange = async (value) => {
   suggestLikedSongs.value = value
   localStorage.setItem('suggest_liked_songs', value.toString())
 }
 
-// ✅ Handle Song Count Change
 const handleSongCountChange = (value) => {
   songCount.value = Math.min(Math.max(parseInt(value) || 1, 1), 10)
   localStorage.setItem('preferred_song_count', songCount.value.toString())
 }
 
-// ✅ Load preferences when component mounts
 onMounted(() => {
-  // ✅ Set a random header message
   setRandomHeaderMessage()
 
-  // ✅ Call checkLoginStatus to update user login state
   checkLoginStatus()
 
-  // ✅ Load preferences from localStorage
   suggestLikedSongs.value = localStorage.getItem('suggest_liked_songs') === 'true'
   songCount.value = parseInt(localStorage.getItem('preferred_song_count')) || 3
 })
