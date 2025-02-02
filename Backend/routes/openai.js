@@ -5,7 +5,7 @@ require("dotenv").config();
 
 router.post("/analyze-mood", async (req, res) => {
   try {
-    const { messages } = req.body;
+    const { messages, liked, count } = req.body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).send("No journal entries provided");
@@ -24,7 +24,7 @@ router.post("/analyze-mood", async (req, res) => {
           },
           {
             role: "user",
-            content: `Given the following journal entries, return only the name of a popular song and its artist. Do not ask questions or provide explanations. Just return in this format: Artist - Track \n\n ${messages.join(
+            content: `Given the following journal entries, return only the name of ${count} popular song and its artist. Do not ask questions or provide explanations. Just return in this format: Artist - Track. Seperate each song with a tilda. \n\n ${messages.join(
               "\n"
             )}`,
           },
