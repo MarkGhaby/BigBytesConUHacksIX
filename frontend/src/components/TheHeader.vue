@@ -2,7 +2,19 @@
   <q-header reveal>
     <q-toolbar shrink class="font-sans bg-stone-200 text-black ">
       <q-btn flat round icon="menu" @click="toggleDrawer" />
-      <q-toolbar-title>{{ headerMessage }}</q-toolbar-title>
+        <!-- Responsive Header Message -->
+        <div 
+          class="text-lg md:text-xl lg:text-2xl transition-all"
+          v-if="!isSmallScreen"
+        >
+          {{ headerMessage }}
+        </div>
+
+        <!-- Default Message for Small Screens -->
+        <div v-else class="text-xl">
+          How are you?
+        </div>
+
       <q-space />
 
       <div class="relative flex items-center">
@@ -77,14 +89,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, provide } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
 
 const emit = defineEmits(['toggle-drawer'])
 const showDropdown = ref(false)
 const isLoggedIn = ref(false)
 const spotifyUsername = ref('')
 const suggestLikedSongs = ref(false)
-const songCount = ref(3)
+const songCount = ref(1)
+const isSmallScreen = ref(false)
+
+const updateScreenSize = () => {
+  isSmallScreen.value = window.innerWidth < 640 // Adjust threshold as needed
+}
+
 
 const spotifyInitials = computed(() => {
   if (!spotifyUsername.value) return ''
@@ -196,6 +214,8 @@ const handleSongCountChange = (value) => {
   localStorage.setItem('preferred_song_count', songCount.value.toString())
 }
 
+
+
 onMounted(() => {
   setRandomHeaderMessage()
 
@@ -203,5 +223,12 @@ onMounted(() => {
 
   suggestLikedSongs.value = localStorage.getItem('suggest_liked_songs') === 'true'
   songCount.value = parseInt(localStorage.getItem('preferred_song_count')) || 3
+
+  updateScreenSize()
+  window.addEventListener('resize', updateScreenSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateScreenSize)
 })
 </script>
