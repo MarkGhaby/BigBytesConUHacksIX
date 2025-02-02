@@ -1,39 +1,52 @@
 const express = require("express");
-const passport = require("passport");
-const jwt = require("jsonwebtoken");
 const router = express.Router();
+const axios = require("axios"); // Use Axios for OpenAI API requests
+require("dotenv").config();
 
-require("../config/spotifyAuth"); // Load Spotify OAuth config
+router.post("/analyze-mood", async (req, res) => {
+  try {
+    const { messages } = req.body;
 
-// ✅ Redirect to Spotify for Authentication
-router.get("/spotify", (req, res) => {
-    console.log("✅ /spotify route was accessed!");
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).send("No journal entries provided");
+    }
 
-    const redirectUri = encodeURIComponent(process.env.SPOTIFY_REDIRECT_URI);
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=user-read-email%20user-read-private`;
-
-    console.log("🔄 Redirecting to Spotify:", authUrl);
-    res.redirect(authUrl);
-});
-
-// ✅ Spotify OAuth Callback
-router.get("/callback", passport.authenticate("spotify", { failureRedirect: "/" }), (req, res) => {
-    const token = jwt.sign(
-        { id: req.user.id, spotifyId: req.user.spotifyId },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+    // 🔹 Construct prompt with full message history
+    const openAiResponse = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an AI that recommends a popular song based on the user's diary entries.",
+          },
+          {
+            role: "user",
+            content: `Given the following journal entries, return only the name of a popular song and its artist. Do not ask questions or provide explanations. Just return in this format: Artist - Track \n\n ${messages.join(
+              "\n"
+            )}`,
+          },
+        ],
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    console.log("✅ User logged in successfully!");
+    // 🔹 Extract the suggested song from OpenAI response
+    let responseText = openAiResponse.data.choices[0]?.message?.content?.trim();
 
-    // ✅ Redirect back to frontend and store token
-    res.redirect(`http://localhost:9000?token=${token}`);
-});
-
-// ✅ Logout Route
-router.get("/logout", (req, res) => {
-    req.logout();
-    res.json({ message: "Logged out successfully" });
+    res.send(responseText); // Returns "Artist - Track"
+  } catch (error) {
+    console.error("Error analyzing mood:", error);
+    res.status(500).send("Error processing request");
+  }
 });
 
 module.exports = router;

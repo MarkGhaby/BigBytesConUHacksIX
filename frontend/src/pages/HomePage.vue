@@ -16,7 +16,7 @@
           {{ msg }}
         </div>
       </div>
-      <SpotifyWidget :messages="messages" ref="spotifyWidget" />
+      <SpotifyWidget :messages="messages" ref="spotifyWidget" class="flex justify-center" @song-loaded="onSongLoaded" />
     </div>
 
     <div class="sticky bottom-0 w-full bg-stone-200 px-10 pb-6 flex items-center gap-4">
@@ -35,14 +35,16 @@
   />
 
   <q-btn
-    rounded
-    text-color="white"
-    class="shrink-0 bottom-3 p-4 "
-    style="background-color: #1DB954"
-    @click="findSong"
-  >
-    <q-icon name="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" size="24px" />
+  rounded
+  text-color="white"
+  class="shrink-0 bottom-3 p-4"
+  style="background-color: #1DB954"
+  icon="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
+  @click="findSong"
+  :loading="isLoading"
+>
 </q-btn>
+
 
 </div>
 
@@ -52,11 +54,13 @@
 <script setup>
 import { ref, nextTick } from 'vue'
 import SpotifyWidget from 'src/components/SpotifyWidget.vue'
+import { Notify } from 'quasar'
 
 const messages = ref([])
 const newMessage = ref('')
 const messagesContainer = ref(null)
 const spotifyWidget = ref(null)
+const isLoading = ref(false)
 
 const sendMessage = () => {
   const trimmed = newMessage.value.trim()
@@ -72,9 +76,24 @@ const sendMessage = () => {
   }
 }
 
-const findSong = () => {
+const findSong = async () => {
   if (spotifyWidget.value) {
-    spotifyWidget.value.getSongFromMessages()
+    isLoading.value = true
+
+    try {
+      await spotifyWidget.value.getSongFromMessages()
+    } catch (error) {
+      console.error("Error fetching song:", error)
+      Notify.create({
+        message: "Failed to fetch song. Please try again.",
+        color: "negative",
+        position: "top",
+      })
+    }
   }
+}
+
+const onSongLoaded = () => {
+  isLoading.value = false
 }
 </script>
