@@ -1,21 +1,24 @@
 <template>
   <div class="flex justify-center">
-    <q-carousel animated v-model="slide" arrows navigation infinite>
+    <q-carousel 
+      animated 
+      v-model="slide" 
+      arrows 
+      navigation 
+      infinite
+      class="rounded-lg w-4/5 bg-stone-300"
+    >
       <q-carousel-slide
         v-for="(trackId, index) in journal.activeChat().trackId"
         :key="index"
         :name="index"
-        class="bg-transparent"
+        class="flex items-center justify-center h-full w-full"
       >
         <iframe
           v-if="trackId"
           :src="`https://open.spotify.com/embed/track/${trackId}`"
-          width="300"
-          height="380"
-          frameborder="0"
-          allowtransparency="true"
           allow="encrypted-media"
-          class="rounded-lg"
+          class="flex w-full h-full"
           @load="handleIframeLoad"
         ></iframe>
       </q-carousel-slide>
@@ -29,10 +32,7 @@ import { useJournalStore } from 'src/stores/journal'
 
 const journal = useJournalStore()
 
-console.log(journal.activeChat().trackId)
-
-const slide = ref(1)
-
+const slide = ref(0)
 const emit = defineEmits(['song-loaded'])
 
 function handleIframeLoad() {
