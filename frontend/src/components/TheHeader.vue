@@ -18,8 +18,6 @@
             {{ isLoggedIn ? `Welcome, ${spotifyUsername}` : "Welcome" }}
           </p>
 
-      
-
           <!-- Settings Section (Only shown when logged in) -->
           <div v-if="isLoggedIn" class="mt-3 space-y-3 border-t pt-3">
             <div class="flex items-center justify-between">
@@ -74,14 +72,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, provide } from "vue";
 
-const emit = defineEmits(["toggle-drawer", "suggest-songs-toggle", "song-count-change"]);
+const emit = defineEmits(["toggle-drawer"]);
 const showDropdown = ref(false);
 const isLoggedIn = ref(false);
 const spotifyUsername = ref("");
 const suggestLikedSongs = ref(false);
 const songCount = ref(3); // Default to 3 songs
+
+// ✅ Provide these values so other components can access them
+provide("suggestLikedSongs", suggestLikedSongs);
+provide("songCount", songCount);
+
+// ✅ Restore Alternating Header Messages
+const messages = [
+  "How are you feeling today?",
+  "It's okay to express yourself.",
+  "Let your thoughts flow freely.",
+  "No one is watching. Be honest.",
+  "This is your space. Speak freely."
+];
+
+const headerMessage = ref("");
+
+// ✅ Randomly Pick a Header Message on Load
+const setRandomHeaderMessage = () => {
+  headerMessage.value = messages[Math.floor(Math.random() * messages.length)];
+};
 
 // ✅ Toggle dropdown visibility
 const toggleDrawer = () => {
@@ -128,6 +146,7 @@ const signInWithSpotify = () => {
   window.location.href = "http://localhost:3000/api/auth/spotify";
 };
 
+// ✅ Logout Function
 const logout = async () => {
   try {
     const response = await fetch("http://localhost:3000/api/auth/logout", {
@@ -161,56 +180,28 @@ const logout = async () => {
   }
 };
 
-// Handle toggle change
+// ✅ Handle Suggest Liked Songs Toggle Change
 const handleToggleChange = async (value) => {
-  try {
-    // Save preference to localStorage
-    localStorage.setItem('suggest_liked_songs', value.toString());
-    
-    // Here you could also send the preference to your backend if needed
-    console.log(`Suggest liked songs: ${value}`);
-    
-    // Emit event for parent components if needed
-    emit('suggest-songs-toggle', value);
-  } catch (error) {
-    console.error('Failed to save preference:', error);
-  }
+  suggestLikedSongs.value = value;
+  localStorage.setItem('suggest_liked_songs', value.toString());
 };
 
-// Handle song count change
+// ✅ Handle Song Count Change
 const handleSongCountChange = (value) => {
-  try {
-    // Ensure value is within bounds
-    const count = Math.min(Math.max(parseInt(value) || 1, 1), 10);
-    songCount.value = count;
-    localStorage.setItem('preferred_song_count', count.toString());
-    emit('song-count-change', count);
-  } catch (error) {
-    console.error('Failed to save song count preference:', error);
-  }
+  songCount.value = Math.min(Math.max(parseInt(value) || 1, 1), 10);
+  localStorage.setItem('preferred_song_count', songCount.value.toString());
 };
 
+// ✅ Load preferences when component mounts
 onMounted(() => {
-  // Check for token in URL parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  
-  if (token) {
-    // Save token and clean up URL
-    localStorage.setItem('spotify_token', token);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-  
-  checkLoginStatus();
+  // ✅ Set a random header message
+  setRandomHeaderMessage();
 
-  // Load toggle preference
-  const savedPreference = localStorage.getItem('suggest_liked_songs');
-  suggestLikedSongs.value = savedPreference === 'true';
+  // ✅ Call checkLoginStatus to update user login state
+  checkLoginStatus(); 
 
-  // Load song count preference
-  const savedSongCount = localStorage.getItem('preferred_song_count');
-  if (savedSongCount) {
-    songCount.value = parseInt(savedSongCount);
-  }
+  // ✅ Load preferences from localStorage
+  suggestLikedSongs.value = localStorage.getItem("suggest_liked_songs") === "true";
+  songCount.value = parseInt(localStorage.getItem("preferred_song_count")) || 3;
 });
 </script>
