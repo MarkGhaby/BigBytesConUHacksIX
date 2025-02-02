@@ -3,7 +3,7 @@
     <q-scroll-area class="fit">
       <div>
         <div class="sticky top-0 p-4 z-10 text-center">
-          <div class="text-xl font-bold">Journalify</div>
+          <img src="src/assets/logo.png" alt="Logo" class=" filter invert" />
         </div>
         <div class="p-4 text-center">
           <div

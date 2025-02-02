@@ -20,33 +20,30 @@
     </div>
 
     <div class="sticky bottom-0 w-full bg-stone-200 px-10 pb-6 flex items-center gap-4">
-  <q-input
-    rounded
-    standout
-    clearable
-    counter
-    outlined
-    color="black"
-    bg-color="grey-4"
-    v-model="newMessage"
-    placeholder="Type to Journalify..."
-    @keyup.enter="sendMessage"
-    class="flex-1"
-  />
+      <q-input
+        rounded
+        standout
+        clearable
+        counter
+        outlined
+        color="black"
+        bg-color="grey-4"
+        v-model="newMessage"
+        placeholder="Type to Journalify..."
+        @keyup.enter="sendMessage"
+        class="flex-1"
+      />
 
-  <q-btn
-  rounded
-  text-color="white"
-  class="shrink-0 bottom-3 p-4"
-  style="background-color: #1DB954"
-  icon="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
-  @click="findSong"
-  :loading="isLoading"
->
-</q-btn>
-
-
-</div>
+      <q-btn
+        rounded
+        text-color="white"
+        class="shrink-0 bottom-3 p-4"
+        style="background-color: #1DB954"
+        icon="img:https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
+        @click="findSong"
+        :loading="isLoading"
+      />
+    </div>
 
   </q-page>
 </template>
